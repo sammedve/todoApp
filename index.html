@@ -1,0 +1,110 @@
+<html>
+  <head>
+    <title>Sample App</title>
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <style>
+
+    	body {
+    		font-family: "Helvetica Neue", Helvetica, sans sherif, ;
+    	}
+
+
+    	#root {
+    		width: 600px;
+    		margin: 50px auto;
+    	}
+
+    	h1 {
+
+    		text-align: center;
+    		margin-bottom: 120px;
+    		
+    	}
+
+    	h3 {
+    		font-size: 12px;
+    		text-transform: uppercase;
+    		color: #bebebe;
+    	}
+
+
+
+
+
+    	::-webkit-input-placeholder {
+   			color: #bebebe;
+		}
+
+    	form input[type="text"] {
+    		height: 50px;
+    		width: 90%;
+    		float:left;
+    		border: none;
+    		border-bottom: 1px solid #dedede;
+    		font-size: 18px;
+    	}
+    	form input[type="text"]:focus {
+    		 outline: 0;
+    	}
+
+    	form input[type="submit"] {
+    		float: left;
+    		width: 10%;
+    		height: 50px;
+    		font-size: 18px;
+    		border: none;
+    	}
+
+    	form {
+/*    		height: 50px;*/
+    		clear: both;
+    		width: 100%;
+    	}
+
+    	form:after {
+    		content:'';
+    		display:block;
+    		clear: both;
+    	}
+
+
+    	.mytodo {
+    		margin-top: 50px;
+    	}
+
+    	ul.list {
+    		margin: 0px;
+    		padding: 0px;
+    		list-style-type: none;
+    	}
+
+    	ul.list li {
+    		padding: 20px;
+    		border-bottom: 1px solid #dedede;
+    		padding-left: 0px;
+    	}
+
+    	ul.list li input[type="checkbox"] {
+    		margin-right: 10px;
+    	}
+
+
+    	.item.checked {
+    		text-decoration:line-through;
+    		color: #999;
+    	}
+
+    	.list li .date{
+    		padding-left: 15px;
+    		color:#bebebe;
+    		font-weight: 100;
+    	}
+
+    </style>
+  </head>
+  <body>
+    <div id='root'>
+    </div>
+    <script src="/static/bundle.js"></script>
+  </body>
+</html>

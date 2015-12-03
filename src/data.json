@@ -1,0 +1,12 @@
+[
+    {
+        "id": 1,
+        "author": "Pete Hunt",
+        "text": "Hey there!"
+    },
+    {
+        "id": 2,
+        "author": "Paul O’Shannessy",
+        "text": "React is *great*!"
+    }
+]
