@@ -1,12 +1,12 @@
 import React from 'react';
 import moment from 'moment';
+import firebase from 'firebase';
 // import marked from 'marked';
 // import got from 'got';
 // import $ from 'jquery';
-import firebase from 'firebase';
 
+const firebaseRef = "https://boiling-fire-4828.firebaseio.com/"
 
-var myDataRef = new Firebase('https://boiling-torch-4038.firebaseio.com/');
 
 /*
 
@@ -25,46 +25,68 @@ class App extends React.Component {
 		this.state = {todos:[]}
 	}
 
+	componentWillMount () {
+  		this.firebaseRef = new Firebase(firebaseRef);
+
+  		this.firebaseRef.on("child_added", (item) => {
+			this.setState({
+				todos: [
+					item, 
+					...this.state.todos
+				]
+			})
+  		})
+
+  		this.firebaseRef.on("child_removed", (item) => {
+			// console.log(item.key())
+			this.setState({
+				todos: this.state.todos.filter(el => el.key() != item.key())
+			})
+  		})
+
+  		this.firebaseRef.on("child_changed", (item) => {
+			// console.log(item.key())
+			var todos = this.state.todos;
+			for (var i in todos) {
+				if (todos[i].key() == item.key()) {
+					todos[i] = item;
+					break;
+				}
+			}
+			this.setState({todos});
+  		})
+	}
+
+	componentDidMount() {
+		// alert('Ok')
+		setInterval(::this.forceUpdate, 5000)
+	}
+
+
 	generateId () {
     	return Math.floor(Math.random() * 90000) + 10000;
   	}
 
 	addTodo(task) {
-		var id = this.generateId().toString()
-
-		this.setState({
-			todos: [
-				{text:task, checked:false, id:id, createdDate:moment()}, 
-				...this.state.todos
-			]
-		})
-
-		console.log(myDataRef)
+		const id = this.generateId().toString()
+		const item = {text:task, checked:false, id:id, createdDate: moment().format('YYYY-MM-DD HH:mm:ss')}
+		this.firebaseRef.push(item)
 	}
 
 	handleItemChecked (item, checked) {
 
-		var todos = this.state.todos;
-		for (var i in todos) {
-			if (todos[i].id == item.id) {
-				todos[i].checked = checked;
-				break;
-			}
-		}
-		this.setState({todos});
+		this.firebaseRef.child(item.key()).update({checked : checked})
+
 	}
 
 	handleItemSuppr(item){
-		var todos =this.state.todos;
-		todos = todos.filter(function(el){
-			 return el.id !== item.id;
-		})
-		this.setState({todos});
+
+		this.firebaseRef.child(item.key()).remove()
 
 	}
 
 	render () {
-		// console.log(this.state)
+
 		return (
 			<div className="Todo">
 				<h1>My todo App</h1>
@@ -126,16 +148,22 @@ class Item extends React.Component {
 
 	handleSuppr(e){
 		e.preventDefault()
-		console.log(this.props.content.id)
+		// console.log(this.props.content.id)
 		this.props.onSuppr(this.props.content)
 	}
 
 	render () {
-		const {checked,text, id, createdDate} = this.props.content;
-		var fromNow = createdDate.fromNow();
+		const {checked,text, createdDate} = this.props.content.val();
+		const id = this.props.content.key();
+		const fromNow = moment(createdDate).fromNow();
 		const cssClasses = 'item ' + (checked ? 'checked' : '')
 		return (
-			<li data={id}className={cssClasses}><span><input onChange={::this.handleCheck} type="checkbox" checked={checked}/></span><span>{text}</span><span className="date">{createdDate.fromNow()}</span><span><button type="button" onClick={::this.handleSuppr}>Delete</button></span></li>
+			<li data={id}className={cssClasses}>
+				<span><input onChange={::this.handleCheck} type="checkbox" checked={checked}/></span>
+				<span>{text}</span>
+				<span className="date">{fromNow}</span>
+				<span><button type="button" onClick={::this.handleSuppr}>Delete</button></span>
+			</li>
 			
 		)
 	}
