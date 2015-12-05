@@ -43,10 +43,14 @@ class App extends React.Component {
   		})
 
   		this.firebaseRef.on("child_removed", (item) => {
-			// console.log(item.key())
+			
 			this.setState({
 				todos: this.state.todos.filter(el => el.key() != item.key())
 			})
+			this.setState({
+				ftodos: this.state.ftodos.filter(el => el.key() != item.key())
+			})
+
   		})
 
   		this.firebaseRef.on("child_changed", (item) => {
@@ -88,10 +92,14 @@ class App extends React.Component {
 		this.firebaseRef.child(item.key()).remove()
 	}
 
+	handleHover(filter){
+	// Something to do here
+	} 
+
 	filterTodo(filter){
 
-		// console.log(filter.value)
 		var filter = filter.value;
+
 
 		var ftodos = this.state.todos.filter(function(item, i) {
 			if(filter === 'all'){
@@ -103,19 +111,9 @@ class App extends React.Component {
 			}
 			
 		})
-
+		console.log(filter.label)
 		this.setState({ftodos})
-
-		console.log(ftodos)
-		// var todos = this.state.todos.filter(function(item, i) {
-		// 	if(filter.value === 'all'){
-		// 		return item.val().checked === false
-		// 	} else { 
-		//  		return item.val().checked === true
-		//  	}
-  //   	});
-    	
-		// this.setState({todos});
+		
 	}
 
 	render () {
@@ -124,8 +122,8 @@ class App extends React.Component {
 			<div className="Todo">
 				<h1>My todo App</h1>
 				<TodoAdd onAdd={::this.addTodo}/>
-				<FilterList onFilter={::this.filterTodo}/>
-				<TodoList  onCheck={::this.handleItemChecked} onSuppr={::this.handleItemSuppr} items={this.state.ftodos}/>
+				<FilterList onHover={::this.handleHover} onFilter={::this.filterTodo}/>
+				<TodoList onCheck={::this.handleItemChecked} onSuppr={::this.handleItemSuppr} items={this.state.ftodos}/>
 			</div>
 		)
 	}
@@ -206,13 +204,13 @@ class Item extends React.Component {
 class FilterList extends React.Component {
 	render () {
 		const availableFilters = [
-			{ label:'All', value: 'all'},
-			{ label:'Remaining', value: 'false'},
-			{ label:'Done', value: 'true'},
+			{ label:'All', value: 'all', active:''},
+			{ label:'Remaining', value: 'false', active:''},
+			{ label:'Done', value: 'true', active:''},
 		];
 
 		const filterList = availableFilters.map((filter, i) => (
-			<FilterItem onFilter={this.props.onFilter} key={i} filter={filter}/>
+			<FilterItem onHover={this.props.onHover} onFilter={this.props.onFilter} key={i} filter={filter} active={filter.active}/>
 			)
 		)
 
@@ -226,13 +224,21 @@ class FilterList extends React.Component {
 }
 
 class FilterItem extends React.Component{
-	handleFilter(){
+
+	handleOver () {
+     	console.log(this.state)
+        console.log(this.props.filter)
+        // this.props.onHover(this.props.filter)
+    }
+
+	handleFilter(e){
+		e.preventDefault()
 		this.props.onFilter(this.props.filter)
 	}
 
 	render(){
 		return(
-			<li onClick={::this.handleFilter}>{this.props.filter.label}</li>
+			<li><a href="#" className={this.props.filter.active} onMouseOver={::this.handleOver} onClick={::this.handleFilter}>{this.props.filter.label}</a></li>
 		)
 	}
 } 
