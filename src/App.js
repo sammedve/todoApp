@@ -29,7 +29,6 @@ class App extends React.Component {
 
 	componentWillMount () {
   		this.firebaseRef = new Firebase(firebaseRef);
-
   		this.firebaseRef.on("child_added", (item) => {
 			this.setState({
 				todos: [
@@ -39,6 +38,8 @@ class App extends React.Component {
 			})
   		})
 
+
+
   		this.firebaseRef.on("child_removed", (item) => {
 			// console.log(item.key())
 			this.setState({
@@ -47,7 +48,7 @@ class App extends React.Component {
   		})
 
   		this.firebaseRef.on("child_changed", (item) => {
-			// console.log(item.key())
+			
 			var todos = this.state.todos;
 			for (var i in todos) {
 				if (todos[i].key() == item.key()) {
@@ -87,13 +88,31 @@ class App extends React.Component {
 
 	}
 
+	filterTodo(filter){
+
+		console.log(filter.value)
+
+
+		var todos = this.state.todos.filter(function(item, i) {
+			if(filter.value === 'all'){
+				return item.val().checked === false
+			} else { 
+
+		 	return item.val().checked === true
+		 	}
+    	});
+    	
+		this.setState({todos});
+	}
+
 	render () {
 
 		return (
 			<div className="Todo">
 				<h1>My todo App</h1>
 				<TodoAdd onAdd={::this.addTodo}/>
-				<TodoList onCheck={::this.handleItemChecked} onSuppr={::this.handleItemSuppr} items={this.state.todos}/>
+				<FilterList onFilter={::this.filterTodo}/>
+				<TodoList  onCheck={::this.handleItemChecked} onSuppr={::this.handleItemSuppr} items={this.state.todos}/>
 			</div>
 		)
 	}
@@ -122,7 +141,6 @@ class TodoAdd extends React.Component {
 class TodoList extends React.Component {
 
 	render () {
-		 // console.log(this.props.items)
 
 		const list = this.props.items.map((item,i) => (
 				<Item onCheck={this.props.onCheck} onSuppr={this.props.onSuppr} key={i} content={item}/>
@@ -171,5 +189,39 @@ class Item extends React.Component {
 	}
 
 }
+
+class FilterList extends React.Component {
+	render () {
+		const availableFilters = [
+			{ label:'All', value: 'all'},
+			{ label:'Remaining', value: 'false'},
+			{ label:'Done', value: 'true'},
+		];
+
+		const filterList = availableFilters.map((filter, i) => (
+			<FilterItem onFilter={this.props.onFilter} key={i} filter={filter}/>
+			)
+		)
+
+		return(
+			<ul className="filters">
+				{filterList}
+			</ul>
+		) 
+
+	}
+}
+
+class FilterItem extends React.Component{
+	handleFilter(){
+		this.props.onFilter(this.props.filter)
+	}
+
+	render(){
+		return(
+			<li onClick={::this.handleFilter}>{this.props.filter.label}</li>
+		)
+	}
+} 
 
 export default App
