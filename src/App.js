@@ -24,7 +24,7 @@ class App extends React.Component {
 
 	constructor() {
 		super()
-		this.state = {todos:[]}
+		this.state = {todos:[], filter:[], ftodos :[]}
 	}
 
 	componentWillMount () {
@@ -34,11 +34,13 @@ class App extends React.Component {
 				todos: [
 					item, 
 					...this.state.todos
+				], 
+				ftodos : [
+					item,
+					...this.state.todos
 				]
 			})
   		})
-
-
 
   		this.firebaseRef.on("child_removed", (item) => {
 			// console.log(item.key())
@@ -56,12 +58,13 @@ class App extends React.Component {
 					break;
 				}
 			}
+			var ftodos = todos
 			this.setState({todos});
+			this.setState({ftodos})
   		})
 	}
 
 	componentDidMount() {
-		// alert('Ok')
 		setInterval(::this.forceUpdate, 5000)
 	}
 
@@ -74,35 +77,45 @@ class App extends React.Component {
 		const id = this.generateId().toString()
 		const item = {text:task, checked:false, id:id, createdDate: moment().format('YYYY-MM-DD HH:mm:ss')}
 		this.firebaseRef.push(item)
+
 	}
 
 	handleItemChecked (item, checked) {
-
 		this.firebaseRef.child(item.key()).update({checked : checked})
-
 	}
 
 	handleItemSuppr(item){
-
 		this.firebaseRef.child(item.key()).remove()
-
 	}
 
 	filterTodo(filter){
 
-		console.log(filter.value)
+		// console.log(filter.value)
+		var filter = filter.value;
 
-
-		var todos = this.state.todos.filter(function(item, i) {
-			if(filter.value === 'all'){
+		var ftodos = this.state.todos.filter(function(item, i) {
+			if(filter === 'all'){
+				return item
+			} else if (filter === 'true') {
+				return item.val().checked === true
+			} else {
 				return item.val().checked === false
-			} else { 
+			}
+			
+		})
 
-		 	return item.val().checked === true
-		 	}
-    	});
+		this.setState({ftodos})
+
+		console.log(ftodos)
+		// var todos = this.state.todos.filter(function(item, i) {
+		// 	if(filter.value === 'all'){
+		// 		return item.val().checked === false
+		// 	} else { 
+		//  		return item.val().checked === true
+		//  	}
+  //   	});
     	
-		this.setState({todos});
+		// this.setState({todos});
 	}
 
 	render () {
@@ -112,7 +125,7 @@ class App extends React.Component {
 				<h1>My todo App</h1>
 				<TodoAdd onAdd={::this.addTodo}/>
 				<FilterList onFilter={::this.filterTodo}/>
-				<TodoList  onCheck={::this.handleItemChecked} onSuppr={::this.handleItemSuppr} items={this.state.todos}/>
+				<TodoList  onCheck={::this.handleItemChecked} onSuppr={::this.handleItemSuppr} items={this.state.ftodos}/>
 			</div>
 		)
 	}
